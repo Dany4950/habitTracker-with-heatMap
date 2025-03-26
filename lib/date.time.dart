@@ -10,7 +10,7 @@ String todayDateFormatted() {
 
   String day = dateTimeObject.day.toString();
   if (day.length == 1) {
-    month = '0$month';
+    day = '0$day';
   }
 
   String yyyymmdd = year + month + day;
@@ -18,18 +18,33 @@ String todayDateFormatted() {
 }
 
 DateTime createDateTimeObject(String yyyymmdd) {
-  int yyyy = int.parse(
-    yyyymmdd.substring(0, 4),
-  );
-  int mm = int.parse(yyyymmdd.substring(4, 6));
-  int dd = int.parse(yyyymmdd.substring(6, 8));
+  try {
+    if (yyyymmdd.length != 8) {
+      throw FormatException('Invalid date format: $yyyymmdd');
+    }
+    int yyyy = int.parse(yyyymmdd.substring(0, 4));
+    int mm = int.parse(yyyymmdd.substring(4, 6));
+    int dd = int.parse(yyyymmdd.substring(6, 8));
 
-  DateTime dateTimeObject = DateTime(yyyy, mm, dd);
-  return dateTimeObject;
+    // Additional validation for month and day
+    if (mm < 1 || mm > 12) {
+      throw FormatException('Invalid month value: $mm');
+    }
+    if (dd < 1 || dd > 31) {
+      throw FormatException('Invalid day value: $dd');
+    }
+
+    return DateTime(yyyy, mm, dd);
+  } catch (e) {
+    print('Error in creating DateTime: $e');
+    // Default to a safe value
+    return DateTime.now(); // Fallback to current date if error
+  }
 }
 
+
 String convertDateTimeToString(DateTime dateTime) {
- String year = dateTime.year.toString();
+  String year = dateTime.year.toString();
   String month = dateTime.month.toString();
 
   if (month.length == 1) {
@@ -38,10 +53,9 @@ String convertDateTimeToString(DateTime dateTime) {
 
   String day = dateTime.day.toString();
   if (day.length == 1) {
-    month = '0$month';
+    day = '0$day';
   }
 
   String yyyymmdd = year + month + day;
   return yyyymmdd;
 }
-

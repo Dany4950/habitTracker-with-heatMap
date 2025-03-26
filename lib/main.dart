@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habit_tracker/habit.db.dart';
 import 'package:habit_tracker/habit_tile.dart';
+import 'package:habit_tracker/monthly_summary.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -36,7 +37,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    if (_mybox.get("current_habit_list") == null) {
+    if (_mybox.get("Current_habit_list") == null) {
       db.createData();
     } else {
       db.loadData();
@@ -74,9 +75,9 @@ class _MainPageState extends State<MainPage> {
                     setState(() {
                       db.habitData.add([alertTextController.text, false]);
                     });
-                    
+
                     alertTextController.clear();
-                    
+
                     Navigator.of(context).pop();
                     db.uploadData();
                   },
@@ -134,19 +135,26 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      body: ListView.builder(
-        itemCount: db.habitData.length,
-        itemBuilder: (context, index) {
-          return HabitTile(
-              settingButton: (p0) {
-                settingButtonEdit(index);
-              },
-              cancelbutton: (p0) => deleteTile(index),
-              boxStatus: db.habitData[index][1],
-              onChanged: (value) => changingStatusOfBox(value, index),
-              habitName: db.habitData[index][0]);
-        },
-      ),
+      body: ListView(children: [
+        MonthlySummary(
+            dataset: db.heatMapdataset,
+             startDate: _mybox.get("START_DATE")??"20250326",),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: db.habitData.length,
+          itemBuilder: (context, index) {
+            return HabitTile(
+                settingButton: (p0) {
+                  settingButtonEdit(index);
+                },
+                cancelbutton: (p0) => deleteTile(index),
+                boxStatus: db.habitData[index][1],
+                onChanged: (value) => changingStatusOfBox(value, index),
+                habitName: db.habitData[index][0]);
+          },
+        ),
+      ]),
       floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.grey[400],
           child: Text(
